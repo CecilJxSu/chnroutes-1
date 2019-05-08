@@ -235,9 +235,17 @@ def fetch_ip_data():
                              "it might take a few minutes, please wait..."
         data = urllib2.urlopen(url).read()
 
-    cnregex = re.compile(r'^apnic\|cn\|ipv4\|[\d\.]+\|\d+\|\d+\|a\w*$',
+    # China
+    cnregex1 = re.compile(r'^apnic\|cn\|ipv4\|[\d\.]+\|\d+\|\d+\|a\w*$',
                          re.I | re.M)
-    cndata = cnregex.findall(data)
+
+    # HongKong
+    cnregex2 = re.compile(r'^apnic\|hk\|ipv4\|[\d\.]+\|\d+\|\d+\|a\w*$',
+                         re.I | re.M)
+
+    cndata = cnregex1.findall(data)
+    cndata2 = cnregex2.findall(data)
+    cndata += cndata2
 
     results = []
 
@@ -255,6 +263,12 @@ def fetch_ip_data():
         cidr = 32 - int(math.log(num_ip, 2))
 
         results.append((starting_ip, mask, cidr))
+
+    # Private Network
+    results.append(('10.0.0.0', '255.0.0.0', 8))
+    results.append(('172.16.0.0', '255.240.0.0', 20))
+    results.append(('172.0.0.0', '255.255.255.255', 32))
+    results.append(('192.168.0.0', '255.255.0.0', 16))
 
     return results
 
